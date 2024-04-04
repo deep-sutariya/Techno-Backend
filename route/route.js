@@ -26,6 +26,11 @@ router.post("/getlocationlist", async (req, res) => {
     res.status(200).send({data: data, message: "Location Data Fetched"})
 })
 
+router.get("/testing", async (req, res) => {
+    console.log("Testing"); 
+    res.status(200).send("Running")
+})
+
 router.post("/fetchlocationname", async (req, res) => {
     const {loc} = req.body
     let data = [];
