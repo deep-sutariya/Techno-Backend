@@ -16,7 +16,12 @@ const LocationListSchema = new Schema({
     },
     location_type: { type: String, required: false },
     type: { type: String, required: false },
-    lastNotificationSentAt: { type: Date, default: null }
+    lastNotificationSentAt: { type: Date, default: null },
+    tasks: [{
+        title: { type: String, required: true },
+        description: { type: String, required: false }
+    }]
+    
 }, { timestamps: false });
 
 

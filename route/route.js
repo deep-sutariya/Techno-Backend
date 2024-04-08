@@ -3,6 +3,9 @@ const router = express.Router();
 const axios = require('axios');
 const locationList = require("../model/locationList");
 
+router.get("/", (req,res)=>{
+    res.send("Ok");
+})
 router.post("/addlocation", async (req, res) => {
     console.log("addlocation");
     const fetchlocation = req.body;
@@ -83,74 +86,57 @@ router.post("/fetchlocation", async (req, res) => {
 })
 
 router.post("/sendnotification", async (req, res) => {
-    const { title, body } = req.body
-    console.log(title);
-
-    const message = {
-        to: "ExponentPushToken[W_gxF9Ck_o3MsVwTdzB0uY]",
-        sound: "default",
-        title: title,
-        body: body
-    }
-    let ack;
+    const { title, body, id } = req.body;
     try {
-        ack = await axios.post("https://exp.host/--/api/v2/push/send", JSON.stringify(message), {
-            headers: {
-                host: "exp.host",
-                accept: "application/json",
-                "accept-encoding": "gzip, deflate",
-                "content-type": "application/json"
+        const data = await locationList.findById(id);
+        if (data) {
+            const currentTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+            const currentTimeObj = new Date(currentTime);
+            const fifteenMinutesAgo = new Date(currentTimeObj.getTime() - 15 * 60 * 1000); // 30 seconds ago
+
+            if (!data.lastNotificationSentAt || data.lastNotificationSentAt < fifteenMinutesAgo) {
+                const message = {
+                    to: "ExponentPushToken[gfu-pSF3f6oSBH6D19LxaI]",
+                    sound: "default",
+                    title: title,
+                    body: body
+                };
+
+                let ack;
+                try {
+                    // Set a timeout of 10 seconds for the nested post request
+                    const timeout = 10000; // 10 seconds
+                    const axiosConfig = {
+                        headers: {
+                            host: "exp.host",
+                            accept: "application/json",
+                            "accept-encoding": "gzip, deflate",
+                            "content-type": "application/json"
+                        },
+                        timeout: timeout
+                    };
+                    ack = await axios.post("https://exp.host/--/api/v2/push/send", JSON.stringify(message), axiosConfig);
+                } catch (error) {
+                    console.log("Nested post request error:", error);
+                    res.status(500).send("Error sending notification.");
+                    return;
+                }
+
+                if (ack.data.data.status === "ok") {
+                    await locationList.findByIdAndUpdate(id, { lastNotificationSentAt: currentTime });
+                }
+                res.status(200).send(ack.data);
+            } else {
+                res.status(400).send("Notification already sent within the last 30 seconds.");
             }
-        })
-        
-    } catch (e) {
-        console.log("ErrB==>", e);
+        } else {
+            res.status(404).send("Location not found.");
+        }
+    } catch (error) {
+        console.log("Error:", error);
+        res.status(500).send("Internal server error.");
     }
-    res.status(200).send(ack?.data);
+});
 
-})
-
-// router.post("/sendnotification", async (req, res) => {
-//     const { title, body, id } = req.body
-//     const data = await locationList.findById(id);
-
-//     if (data) {
-//         const currentTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-//         const currentTimeObj = new Date(currentTime);
-//         const fifteenMinutesAgo = new Date(currentTimeObj.getTime() - 10 * 1000); // 0.5 minutes ago
-
-//         console.log(data?.lastNotificationSentAt < fifteenMinutesAgo);
-
-//         if (data?.lastNotificationSentAt < fifteenMinutesAgo) {
-
-//             const message = {
-//                 to: "ExponentPushToken[W_gxF9Ck_o3MsVwTdzB0uY]",
-//                 sound: "default",
-//                 title: title,
-//                 body: body
-//             }
-//             let ack;
-//             try {
-//                 ack = await axios.post("https://exp.host/--/api/v2/push/send", JSON.stringify(message), {
-//                     headers: {
-//                         host: "exp.host",
-//                         accept: "application/json",
-//                         "accept-encoding": "gzip, deflate",
-//                         "content-type": "application/json"
-//                     }
-//                 })
-//                 if(ack?.data?.data?.status === "ok"){
-//                     data.lastNotificationSentAt = currentTime;
-//                     await data.save();
-//                 }
-//             } catch (e) {
-//                 console.log("ErrB==>", e);
-//             }
-//             res.status(200).send(ack?.data);
-//         }
-//     }else{
-//         res.status(400).send("Message Not Sent");
-//     }
-// })
 
 module.exports = router;
