@@ -85,26 +85,81 @@ router.post("/fetchlocation", async (req, res) => {
     res.status(200).send(data?.data);
 })
 
+router.post("/addtask", async (req, res) => {
+    try {
+        const { id, task } = req.body;
+        console.log(id + "--" + task);
+        const location = await locationList.findByIdAndUpdate({_id:id}, { $push: { tasks: task } }, { new: true });
+
+        if (!location) {
+            return res.status(404).json({ message: "Location not found" });
+        }
+
+        res.status(200).json({ message: "Task added successfully", location });
+    } catch (error) {
+        console.error("Error adding task:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+router.post("/updatetask", async (req, res) => {
+    const { id, taskId, updatedTask } = req.body;
+    try {
+        const location = await locationList.findByIdAndUpdate(
+            id,
+            { $set: { "tasks.$[task]": updatedTask } },
+            { arrayFilters: [{ "task._id": taskId }], new: true }
+        );
+
+        if (!location) {
+            return res.status(404).send("Location not found");
+        }
+
+        res.status(200).json(location);
+    } catch (error) {
+        console.error("Error updating task:", error);
+        res.status(500).send("Error updating task");
+    }
+});
+
+
+router.post("/deletetask", async (req, res) => {
+    try {
+        const { id, taskId } = req.body;
+        const location = await locationList.findByIdAndUpdate({_id:id}, { $pull: { tasks: { _id: taskId } } }, { new: true });
+
+        if (!location) {
+            return res.status(404).json({ message: "Location not found" });
+        }
+
+        res.status(200).json({ message: "Task deleted successfully", location });
+    } catch (error) {
+        console.error("Error deleting task:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
 router.post("/sendnotification", async (req, res) => {
-    const { title, body, id } = req.body;
+    console.log("sendnotification");
+    const { title, tasks, id } = req.body;
     try {
         const data = await locationList.findById(id);
         if (data) {
             const currentTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
             const currentTimeObj = new Date(currentTime);
-            const fifteenMinutesAgo = new Date(currentTimeObj.getTime() - 15 * 60 * 1000); // 30 seconds ago
+            const fifteenMinutesAgo = new Date(currentTimeObj.getTime() - 15 * 60 * 1000); // 15 seconds ago
 
             if (!data.lastNotificationSentAt || data.lastNotificationSentAt < fifteenMinutesAgo) {
                 const message = {
                     to: "ExponentPushToken[gfu-pSF3f6oSBH6D19LxaI]",
                     sound: "default",
                     title: title,
-                    body: body
+                    body: tasks?.length>0 ? tasks : "No Tasks"
                 };
 
                 let ack;
                 try {
-                    // Set a timeout of 10 seconds for the nested post request
                     const timeout = 10000; // 10 seconds
                     const axiosConfig = {
                         headers: {
