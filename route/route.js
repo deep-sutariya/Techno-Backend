@@ -142,7 +142,10 @@ router.post("/deletetask", async (req, res) => {
 
 router.post("/sendnotification", async (req, res) => {
     console.log("sendnotification");
-    const { title, tasks, id } = req.body;
+    const { title, tasks, id, token } = req.body;
+    if(token.length == 0){
+        res.status(500).send("Error sending notification.");
+    }
     try {
         const data = await locationList.findById(id);
         if (data) {
@@ -152,7 +155,7 @@ router.post("/sendnotification", async (req, res) => {
 
             if (!data.lastNotificationSentAt || data.lastNotificationSentAt < fifteenMinutesAgo) {
                 const message = {
-                    to: "ExponentPushToken[gfu-pSF3f6oSBH6D19LxaI]",
+                    to: token,
                     sound: "default",
                     title: title,
                     body: tasks?.length>0 ? tasks : "No Tasks"
