@@ -190,7 +190,6 @@ router.post("/sendnotification", async (req, res) => {
         console.log("Error:", error);
         res.status(500).send("Internal server error.");
     }
-}
 });
 
 
