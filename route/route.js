@@ -52,7 +52,6 @@ router.post("/getlocationlist", async (req, res) => {
 
 router.post("/fetchlocationname", async (req, res) => {
     const { loc } = req.body
-    console.log(loc);
     let data = [];
     try {
         let lonlat = `${loc.lat},${loc.lon}`;
@@ -88,7 +87,6 @@ router.post("/fetchlocation", async (req, res) => {
 router.post("/addtask", async (req, res) => {
     try {
         const { id, task } = req.body;
-        console.log(id + "--" + task);
         const location = await locationList.findByIdAndUpdate({_id:id}, { $push: { tasks: task } }, { new: true });
 
         if (!location) {
@@ -143,6 +141,7 @@ router.post("/deletetask", async (req, res) => {
 router.post("/sendnotification", async (req, res) => {
     console.log("sendnotification");
     const { title, tasks, id, token } = req.body;
+    console.log("Token->",token);
     if(token.length == 0){
         res.status(500).send("Error sending notification.");
     }
