@@ -142,9 +142,6 @@ router.post("/sendnotification", async (req, res) => {
     console.log("sendnotification");
     const { title, tasks, id, token } = req.body;
     console.log("Token->",token);
-    if(token.length == 0){
-        res.status(500).send("Error sending notification.");
-    }
     try {
         const data = await locationList.findById(id);
         if (data) {
@@ -193,6 +190,7 @@ router.post("/sendnotification", async (req, res) => {
         console.log("Error:", error);
         res.status(500).send("Internal server error.");
     }
+}
 });
 
 
