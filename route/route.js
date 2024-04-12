@@ -147,7 +147,7 @@ router.post("/sendnotification", async (req, res) => {
         if (data) {
             const currentTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
             const currentTimeObj = new Date(currentTime);
-            const fifteenMinutesAgo = new Date(currentTimeObj.getTime() - 15 * 60 * 1000); // 15 seconds ago
+            const fifteenMinutesAgo = new Date(currentTimeObj.getTime() - 10 * 60 * 1000);
 
             if (!data.lastNotificationSentAt || data.lastNotificationSentAt < fifteenMinutesAgo) {
                 const message = {
