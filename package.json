@@ -9,16 +9,21 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js",
-    "build": "npm run build"
+    "build": "netlify deploy --prod"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@netlify/functions": "^2.6.0",
     "@react-native-community/geolocation": "^3.2.1",
+    "@types/express": "^4.17.21",
     "axios": "^1.6.8",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "mongoose": "^8.2.4",
-    "nodemon": "^3.1.0"
+    "netlify-cli": "^17.22.1",
+    "netlify-lambda": "^2.0.16",
+    "nodemon": "^3.1.0",
+    "serverless-http": "^3.2.0"
   }
 }
