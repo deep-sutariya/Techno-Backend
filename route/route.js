@@ -58,11 +58,12 @@ router.post("/fetchlocationname", async (req, res) => {
         data = await axios.get(`https://trueway-geocoding.p.rapidapi.com/ReverseGeocode?language=en&location=${lonlat}`, {
             headers: {
                 'X-RapidAPI-Key': '0882d6a9admshd1be93ee039f1e3p1b9cd4jsn9fa85fdebd00',
+                // 'X-RapidAPI-Key': '1aecf3ac76mshe524bcc63f5c710p10f501jsn24c678f969cb',
                 'X-RapidAPI-Host': 'trueway-geocoding.p.rapidapi.com'
             }
         })
     } catch (e) {
-        console.log("ErrB==>", e);
+        console.log("Err Fetching location in short time");
     }
     res.status(200).send(data?.data?.results)
 })
@@ -79,7 +80,8 @@ router.post("/fetchlocation", async (req, res) => {
             }
         })
     } catch (e) {
-        console.log("ErrB==>", e);
+        console.log("Err Fetching location in short time");
+        res.status(400).send(data);
     }
     res.status(200).send(data?.data);
 })
