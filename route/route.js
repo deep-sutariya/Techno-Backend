@@ -161,7 +161,7 @@ router.post("/sendnotification", async (req, res) => {
 
                 let ack;
                 try {
-                    const timeout = 10000; // 10 seconds
+                    const timeout = 10000;
                     const axiosConfig = {
                         headers: {
                             host: "exp.host",
