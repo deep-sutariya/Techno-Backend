@@ -147,9 +147,9 @@ router.post("/sendnotification", async (req, res) => {
     try {
         const data = await locationList.findById(id);
         if (data) {
-            const currentTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+            const currentTime = new Date().getTime();
             const currentTimeObj = new Date(currentTime);
-            const fifteenMinutesAgo = new Date(currentTimeObj.getTime() - 10 * 60 * 1000);
+            const fifteenMinutesAgo = new Date(currentTimeObj.getTime() - 10 * 1000);
 
             if (!data.lastNotificationSentAt || data.lastNotificationSentAt < fifteenMinutesAgo) {
                 const message = {
@@ -179,6 +179,7 @@ router.post("/sendnotification", async (req, res) => {
                 }
 
                 if (ack.data.data.status === "ok") {
+                    console.log(currentTime);
                     await locationList.findByIdAndUpdate(id, { lastNotificationSentAt: currentTime });
                 }
                 res.status(200).send(ack.data);
