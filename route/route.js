@@ -6,9 +6,13 @@ const locationList = require("../model/locationList");
 router.get("/", (req,res)=>{
     res.send("Ok");
 })
+
 router.post("/addlocation", async (req, res) => {
     console.log("addlocation");
     const fetchlocation = req.body;
+    console.log('====================================');
+    console.log(fetchlocation[0]);
+    console.log('====================================');
     try {
         const data = new locationList(fetchlocation[0]);
         await data.save();
