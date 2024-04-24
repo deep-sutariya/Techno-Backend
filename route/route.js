@@ -3,13 +3,16 @@ const router = express.Router();
 const axios = require('axios');
 const locationList = require("../model/locationList");
 
-router.get("/", (req,res)=>{
+router.get("/", (req, res) => {
     res.send("Ok");
 })
 
 router.post("/addlocation", async (req, res) => {
     console.log("addlocation");
     const fetchlocation = req.body;
+    if (fetchlocation == undefined) {
+        res.status(500).send({ message: "Location Not Added" })
+    }
     console.log('====================================');
     console.log(fetchlocation[0]);
     console.log('====================================');
@@ -93,7 +96,7 @@ router.post("/fetchlocation", async (req, res) => {
 router.post("/addtask", async (req, res) => {
     try {
         const { id, task } = req.body;
-        const location = await locationList.findByIdAndUpdate({_id:id}, { $push: { tasks: task } }, { new: true });
+        const location = await locationList.findByIdAndUpdate({ _id: id }, { $push: { tasks: task } }, { new: true });
 
         if (!location) {
             return res.status(404).json({ message: "Location not found" });
@@ -130,7 +133,7 @@ router.post("/updatetask", async (req, res) => {
 router.post("/deletetask", async (req, res) => {
     try {
         const { id, taskId } = req.body;
-        const location = await locationList.findByIdAndUpdate({_id:id}, { $pull: { tasks: { _id: taskId } } }, { new: true });
+        const location = await locationList.findByIdAndUpdate({ _id: id }, { $pull: { tasks: { _id: taskId } } }, { new: true });
 
         if (!location) {
             return res.status(404).json({ message: "Location not found" });
@@ -147,7 +150,7 @@ router.post("/deletetask", async (req, res) => {
 router.post("/sendnotification", async (req, res) => {
     console.log("sendnotification");
     const { title, tasks, id, token } = req.body;
-    console.log("Token->",token);
+    console.log("Token->", token);
     try {
         const data = await locationList.findById(id);
         if (data) {
@@ -160,7 +163,7 @@ router.post("/sendnotification", async (req, res) => {
                     to: token,
                     sound: "default",
                     title: title,
-                    body: tasks?.length>0 ? tasks : "No Tasks"
+                    body: tasks?.length > 0 ? tasks : "No Tasks"
                 };
 
                 let ack;
